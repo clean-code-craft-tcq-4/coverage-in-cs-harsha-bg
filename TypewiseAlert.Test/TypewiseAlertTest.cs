@@ -1,6 +1,6 @@
 using Xunit;
 using static TypewiseAlert.Constants;
-using static TypewiseAlert.LiBatteryparameter;
+using static TypewiseAlert.LiIonBatteryparameter;
 
 namespace TypewiseAlert.Test
 {
@@ -8,114 +8,29 @@ namespace TypewiseAlert.Test
     {
         BatteryParamaters bParams;
 
-        [Fact]
-        public void InfersBreachAsToo_Low()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 12;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.True(TypewiseAlert.inferBreach(bParams) ==
-              Constants.BreachType.TOO_LOW);
-        }
-        [Fact]
-        public void Return_Too_Low_AsTrue()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 12;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.True(TypewiseAlert.BreachType_Too_Low(bParams));
-        }
-        [Fact]
-        public void Return_Too_Low_AsFalse()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 22;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.False(TypewiseAlert.BreachType_Too_Low(bParams));
-        }
-
-        [Fact]
-        public void InfersBreachAsNormal()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 25;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.True(TypewiseAlert.inferBreach(bParams) ==
-              Constants.BreachType.NORMAL);
-        }
-
-        [Fact]
-        public void InfersBreachAsToo_High()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 40;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.True(TypewiseAlert.inferBreach(bParams) ==
-              Constants.BreachType.TOO_HIGH);
-        }
-
-        [Fact]
-        public void ReturnToo_High_AsTrue()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 40;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.True(TypewiseAlert.BreachType_Too_High(bParams));
-        }
-        [Fact]
-        public void ReturnToo_High_AsFalse()
-        {
-            bParams = new BatteryParamaters();
-            bParams.temperature = 25;
-            bParams.lowerLimit = 20;
-            bParams.upperLimit = 30;
-            Assert.False(TypewiseAlert.BreachType_Too_High(bParams));
-        }
-
+        LithiumBattery type;
+        LithiumBattery Litype = new LithiumBattery(new LiIonBatteryparameter());
         [Fact]
         public void classifyTemperatureBreach_Passive_Cooling()
         {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
             Assert.True(types.classifyTemperatureBreach(CoolingType.PASSIVE_COOLING, 15) ==
               Constants.BreachType.NORMAL);
         }
         [Fact]
         public void classifyTemperatureBreach_HI_Active_Cooling()
         {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
             Assert.True(types.classifyTemperatureBreach(CoolingType.HI_ACTIVE_COOLING, 55) ==
               Constants.BreachType.TOO_HIGH);
         }
         [Fact]
         public void classifyTemperatureBreach_MED_Active_Cooling()
         {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
             Assert.True(types.classifyTemperatureBreach(CoolingType.MED_ACTIVE_COOLING, 25) ==
               Constants.BreachType.NORMAL);
         }
-        //[Fact]
-        //public void BatteryCheckViaControllerTest()
-        //{
-        //    var bchecker = new BatteryChecker(new AlertViaController());
-        //    BatteryCharacter batteryCharacter = new BatteryCharacter();
-        //    batteryCharacter.coolingType = CoolingType.MED_ACTIVE_COOLING;
-        //    bchecker.BatteryCheck(batteryCharacter, 25);
-        //}
-
-        //[Fact]
-        //public void BatteryAlertViaEmailTest()
-        //{
-        //    var bchecker = new BatteryChecker(new AlertViaEmail("a.b@c.com"));
-        //    BatteryCharacter batteryCharacter = new BatteryCharacter();
-        //    batteryCharacter.coolingType = CoolingType.HI_ACTIVE_COOLING;
-        //    bchecker.BatteryCheck(batteryCharacter, 40);
-        //}
         [Fact]
         public void formatEmailDataTest()
         {
@@ -134,7 +49,7 @@ namespace TypewiseAlert.Test
         [Fact]
         public void sendToControllerwhenHi()
         {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
             BreachType type = types.classifyTemperatureBreach(CoolingType.HI_ACTIVE_COOLING, 55);
             Assert.Equal(BreachType.TOO_HIGH, type);
             var alert = new AlertViaController();
@@ -144,50 +59,111 @@ namespace TypewiseAlert.Test
         [Fact]
         public void TypewiseAlertTestMethod()
         {
-            BatteryChecker bchecker = new BatteryChecker(new AlertViaEmail("a.b@c.com"),new LiBatteryparameter());
+            BatteryChecker bchecker = new BatteryChecker(new AlertViaEmail("a.b@c.com"), new LithiumBattery(new LiIonBatteryparameter()));
             BatteryCharacter batteryCharacter = new BatteryCharacter();
             batteryCharacter.coolingType = CoolingType.HI_ACTIVE_COOLING;
             bchecker.BatteryCheck(batteryCharacter, 55);
             Assert.True(true);
         }
 
-        [Fact]
-        public void setLimitValuesPassive_CoolingTest()
-        {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
-            bParams = new BatteryParamaters();
-            var data = types.setLimitValues(CoolingType.PASSIVE_COOLING, bParams);
 
-            Assert.Equal(0, data.lowerLimit);
-            Assert.Equal(35, data.upperLimit);
+
+        [Fact]
+        public void Hi_Active_CoolingTest()
+        {
+            BatteryCharacter bchar = new BatteryCharacter();
+            bchar.coolingType = CoolingType.HI_ACTIVE_COOLING;
+            bchar.brand = "lithiumionbattery";
+            var Bchecker = new BatteryChecker(new AlertViaController(), new LithiumBattery(new LiIonBatteryparameter()));
+            Bchecker.BatteryCheck(bchar, 55);
         }
 
         [Fact]
-        public void setLimitValuesHi_Active_CoolingTest()
+        public void Hi_Active_CoolingLiSiTest()
         {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
+            BatteryCharacter bchar = new BatteryCharacter();
+            bchar.coolingType = CoolingType.HI_ACTIVE_COOLING;
+            bchar.brand = "lithiumionbattery";
+            var Bchecker = new BatteryChecker(new AlertViaEmail("Harsha@bosch.com"), new LithiumBattery(new LiSiBatteryparameter()));
+            Bchecker.BatteryCheck(bchar, 25);
+        }
+        [Fact]
+        public void InfersBreachAsToo_Low()
+        {
             bParams = new BatteryParamaters();
-            var data = types.setLimitValues(CoolingType.HI_ACTIVE_COOLING, bParams);
+            bParams.temperature = 12;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            type = new LithiumBattery(bParams);
+            Assert.True(Litype.inferBreach() ==
+              Constants.BreachType.TOO_LOW);
+        }
+        [Fact]
+        public void Return_Too_Low_AsTrue()
+        {
 
-            Assert.Equal(0, data.lowerLimit);
-            Assert.Equal(45, data.upperLimit);
+            bParams = new BatteryParamaters();
+            bParams.temperature = 12;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            Assert.True(LithiumBattery.BreachType_Too_Low(bParams));
+        }
+        [Fact]
+        public void Return_Too_Low_AsFalse()
+        {
+            bParams = new BatteryParamaters();
+            bParams.temperature = 22;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            Assert.False(LithiumBattery.BreachType_Too_Low(bParams));
         }
 
         [Fact]
-        public void setLimitValuesMed_Active_CoolingTest()
+        public void InfersBreachAsNormal()
         {
-            TypewiseAlert types = new TypewiseAlert(new LiBatteryparameter());
             bParams = new BatteryParamaters();
-            var data = types.setLimitValues(CoolingType.MED_ACTIVE_COOLING, bParams);
-
-            Assert.Equal(0, data.lowerLimit);
-            Assert.Equal(40, data.upperLimit);
+            bParams.temperature = 25;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            type = new LithiumBattery(bParams);
+            Assert.True(type.inferBreach() ==
+              Constants.BreachType.NORMAL);
         }
 
+        [Fact]
+        public void InfersBreachAsToo_High()
+        {
+            bParams = new BatteryParamaters();
+            bParams.temperature = 40;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            type = new LithiumBattery(bParams);
+            Assert.True(type.inferBreach() ==
+              Constants.BreachType.TOO_HIGH);
+        }
+
+        [Fact]
+        public void ReturnToo_High_AsTrue()
+        {
+            bParams = new BatteryParamaters();
+            bParams.temperature = 40;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            Assert.True(LithiumBattery.BreachType_Too_High(bParams));
+        }
+        [Fact]
+        public void ReturnToo_High_AsFalse()
+        {
+            bParams = new BatteryParamaters();
+            bParams.temperature = 25;
+            bParams.lowerLimit = 20;
+            bParams.upperLimit = 30;
+            Assert.False(LithiumBattery.BreachType_Too_High(bParams));
+        }
         [Fact]
         public void Passive_CoolingTest()
         {
-            var data = new LiBatteryparameter();
+            var data = new LiIonBatteryparameter();
             var res = data.Passive_Cooling();
 
             Assert.Equal(0, res.lowerLimit);
@@ -195,9 +171,9 @@ namespace TypewiseAlert.Test
         }
 
         [Fact]
-        public void Hi_Active_CoolingTest()
+        public void Hi_Active_LiCoolingTest()
         {
-            var data = new LiBatteryparameter();
+            var data = new LiIonBatteryparameter();
             var res = data.Hi_Active_Cooling();
 
             Assert.Equal(0, res.lowerLimit);
@@ -207,11 +183,43 @@ namespace TypewiseAlert.Test
         [Fact]
         public void Med_Active_CoolingTest()
         {
-            var data = new LiBatteryparameter();
+            var data = new LiIonBatteryparameter();
             var res = data.Med_Active_Cooling();
 
             Assert.Equal(0, res.lowerLimit);
             Assert.Equal(40, res.upperLimit);
+        }
+        [Fact]
+        public void setLimitValuesPassive_CoolingTest()
+        {
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
+            bParams = new BatteryParamaters();
+            types.setLimitValues(CoolingType.PASSIVE_COOLING);
+
+            Assert.Equal(0, LithiumBattery.bparams.lowerLimit);
+            Assert.Equal(35, LithiumBattery.bparams.upperLimit);
+        }
+
+        [Fact]
+        public void setLimitValuesHi_Active_CoolingTest()
+        {
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
+            bParams = new BatteryParamaters();
+            types.setLimitValues(CoolingType.HI_ACTIVE_COOLING);
+
+            Assert.Equal(0, LithiumBattery.bparams.lowerLimit);
+            Assert.Equal(45, LithiumBattery.bparams.upperLimit);
+        }
+
+        [Fact]
+        public void setLimitValuesMed_Active_CoolingTest()
+        {
+            LithiumBattery types = new LithiumBattery(new LiIonBatteryparameter());
+            bParams = new BatteryParamaters();
+            types.setLimitValues(CoolingType.MED_ACTIVE_COOLING);
+
+            Assert.Equal(0, LithiumBattery.bparams.lowerLimit);
+            Assert.Equal(40, LithiumBattery.bparams.upperLimit);
         }
     }
 }

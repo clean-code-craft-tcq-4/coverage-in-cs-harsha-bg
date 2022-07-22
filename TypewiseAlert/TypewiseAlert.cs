@@ -1,48 +1,52 @@
 ﻿using static TypewiseAlert.Constants;
-using static TypewiseAlert.LiBatteryparameter;
+using static TypewiseAlert.LiIonBatteryparameter;
 
 namespace TypewiseAlert
 {
-    public class TypewiseAlert
+    public class LithiumBattery:IBatteryClassify
     {
         public static ICoolingType type;
-        public TypewiseAlert(ICoolingType typeobj)
+        public static BatteryParamaters bparams;
+        public LithiumBattery(BatteryParamaters bp) {
+            bparams.temperature = bp.temperature;
+            bparams.lowerLimit = bp.lowerLimit;
+            bparams.upperLimit = bp.upperLimit; 
+        }
+        public LithiumBattery(ICoolingType typeobj)
         {
             type = typeobj;
+            bparams = new BatteryParamaters();
         }
 
-        public static BreachType inferBreach(BatteryParamaters values)
+        public BreachType inferBreach()
         {
-            if (BreachType_Too_Low(values))
+            if (BreachType_Too_Low(bparams))
                 return BreachType.TOO_LOW;
-            if (BreachType_Too_High(values))
+            if (BreachType_Too_High(bparams))
                 return BreachType.TOO_HIGH;
             return BreachType.NORMAL;
         }
-        public static bool BreachType_Too_Low(BatteryParamaters values)
+        public static bool BreachType_Too_Low(BatteryParamaters bparams)
         {
-            if (values.temperature < values.lowerLimit)
+            if (bparams.temperature < bparams.lowerLimit)
                 return true;
             return false;
         }
-        public static bool BreachType_Too_High(BatteryParamaters values)
+        public static bool BreachType_Too_High(BatteryParamaters bparams)
         {
-            if (values.temperature > values.upperLimit)
+            if (bparams.temperature > bparams.upperLimit)
                 return true;
             return false;
         }
         public BreachType classifyTemperatureBreach(
             CoolingType coolingType, double temperatureInC)
         {
-            BatteryParamaters bparams = new BatteryParamaters();
+            setLimitValues(coolingType);
             bparams.temperature = temperatureInC;
-            var data = setLimitValues(coolingType, bparams);
-            bparams.lowerLimit = data.lowerLimit;
-            bparams.upperLimit = data.upperLimit;
-            return inferBreach(bparams);
+            return inferBreach();
         }
 
-        public  BatteryParamaters setLimitValues(CoolingType coolingType, BatteryParamaters bparams)
+        public void setLimitValues(CoolingType coolingType)
         {
             if (coolingType is CoolingType.PASSIVE_COOLING)
                 bparams = type.Passive_Cooling();
@@ -50,7 +54,6 @@ namespace TypewiseAlert
                 bparams = type.Hi_Active_Cooling();
             if (coolingType is CoolingType.MED_ACTIVE_COOLING)
                 bparams = type.Med_Active_Cooling();
-            return bparams;
         }
     }
 }

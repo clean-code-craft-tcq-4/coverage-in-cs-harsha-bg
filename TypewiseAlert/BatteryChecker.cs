@@ -6,16 +6,15 @@ namespace TypewiseAlert
     public class BatteryChecker
     {
         ITypewiseAlert send;
-        ICoolingType type;
-        public BatteryChecker(ITypewiseAlert alertobj, ICoolingType typeobj)
+        IBatteryClassify type;
+        public BatteryChecker(ITypewiseAlert alertobj, IBatteryClassify typeobj)
         {
             send = alertobj;
             type = typeobj;
         }
         public void BatteryCheck(BatteryCharacter batteryChar, double temperatureInC)
         {
-            TypewiseAlert types = new TypewiseAlert(type);
-            send.BatteryAlert(types.classifyTemperatureBreach(
+            send.BatteryAlert(type.classifyTemperatureBreach(
             batteryChar.coolingType, temperatureInC));
         }
     }

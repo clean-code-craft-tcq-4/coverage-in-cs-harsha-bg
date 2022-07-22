@@ -1,4 +1,4 @@
-﻿using static TypewiseAlert.LiBatteryparameter;
+﻿using static TypewiseAlert.LiIonBatteryparameter;
 
 namespace TypewiseAlert
 {
